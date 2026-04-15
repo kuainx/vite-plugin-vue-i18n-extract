@@ -26,55 +26,56 @@ function defaultRenderFn<LangList extends string>(
   return dat[cfg.displayLang]
 }
 
-export async function defineConfig<LangList extends string, RenderList extends string = string>(
-  cfg: RuntimeConfig<LangList, RenderList>,
-): Promise<TFunction<RenderList>> {
-  let DICT: I18nDict<LangList> = {}
-  const { displayLang, render } = cfg
-  const runtimeRender: Record<RenderList | 'default', TRenderFn<LangList>> = {
-    default: defaultRenderFn<LangList>,
-    ...render,
-  }
-  try {
-    const mod = await import('virtual:vue-i18n-extract-dict')
-    DICT = mod.default as I18nDict<LangList>
-  } catch (error: any) {
-    DICT = {}
-    console.warn('i18n-dict module not found', error)
-  }
-
-  function processRender(renderFn: TRenderFn<LangList>, str: string, args: any[]): string {
-    const id = generateId(str)
-    const dat = DICT[id] ?? { id, [displayLang]: str }
-    // 遍历args，全部转换为string
-    const strArgs = convertArgsToStringArraySimple(args)
-    for (const key in dat) {
-      if (!Object.hasOwn(dat, key)) continue
-      const value = dat[key as LangList]
-      if (!(typeof value === 'string')) continue
-      ;(dat[key as LangList] as string) = processTemplate(value, strArgs)
+export function defineConfig<LangList extends string>() {
+  return async function init<RenderList extends string>(
+    cfg: RuntimeConfig<LangList, RenderList>,
+  ): Promise<TFunction<RenderList>> {
+    let DICT: I18nDict<LangList> = {}
+    const { displayLang, render } = cfg
+    const runtimeRender: Record<RenderList | 'default', TRenderFn<LangList>> = {
+      default: defaultRenderFn<LangList>,
+      ...render,
     }
-    return renderFn(cfg, dat)
-  }
+    try {
+      const mod = await import('virtual:vue-i18n-extract-dict')
+      DICT = mod.default as I18nDict<LangList>
+    } catch (error: any) {
+      DICT = {}
+      console.warn('i18n-dict module not found', error)
+    }
 
-  const tProxy = new Proxy(function () {}, {
-    get(target, prop: RenderList) {
-      if (Object.hasOwn(runtimeRender, prop)) {
-        const renderFn = runtimeRender?.[prop] ?? runtimeRender.default
-        return function (str: string, ...args: any[]) {
-          return processRender(renderFn, str, args)
-        }
+    function processRender(renderFn: TRenderFn<LangList>, str: string, args: any[]): string {
+      const id = generateId(str)
+      const dat = DICT[id] ?? { id, [displayLang]: str }
+      // 遍历args，全部转换为string
+      const strArgs = convertArgsToStringArraySimple(args)
+      for (const key in dat) {
+        if (!Object.hasOwn(dat, key)) continue
+        const value = dat[key as LangList]
+        if (!(typeof value === 'string')) continue
+        ;(dat[key as LangList] as string) = processTemplate(value, strArgs)
       }
-      return target[prop as keyof typeof target]
-    },
-    apply(target, thisArg, args: [string, ...any[]]) {
-      const str = args[0]
-      const restArgs = args.slice(1)
-      return processRender(runtimeRender.default, str, restArgs)
-    },
-  })
+      return renderFn(cfg, dat)
+    }
 
-  return tProxy as unknown as TFunction<RenderList>
+    const tProxy = new Proxy(function () {}, {
+      get(target, prop: RenderList) {
+        if (Object.hasOwn(runtimeRender, prop)) {
+          const renderFn = runtimeRender?.[prop] ?? runtimeRender.default
+          return function (str: string, ...args: any[]) {
+            return processRender(renderFn, str, args)
+          }
+        }
+        return target[prop as keyof typeof target]
+      },
+      apply(target, thisArg, args: [string, ...any[]]) {
+        const str = args[0]
+        const restArgs = args.slice(1)
+        return processRender(runtimeRender.default, str, restArgs)
+      },
+    })
+    return tProxy as unknown as TFunction<RenderList>
+  }
 }
 
 function convertArgsToStringArraySimple(args: any[]): string[] {

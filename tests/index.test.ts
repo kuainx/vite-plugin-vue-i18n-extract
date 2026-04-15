@@ -11,7 +11,7 @@ test('generateId', () => {
 })
 
 test('runtime $t formatting', async () => {
-  const $t = await defineConfig<'en' | 'zh'>({
+  const $t = await defineConfig<'en' | 'zh'>()({
     displayLang: 'en',
     render: {
       default: (cfg, dat) => dat[cfg.displayLang] ?? dat['zh'],
@@ -24,7 +24,7 @@ test('runtime $t formatting', async () => {
 })
 
 test('runtime $t.l formatting', async () => {
-  const $t = await defineConfig<'en' | 'zh'>({
+  const $t = await defineConfig<'en' | 'zh'>()({
     displayLang: 'en',
     render: {
       default: (cfg, dat) => dat[cfg.displayLang] ?? dat['zh'],

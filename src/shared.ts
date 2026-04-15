@@ -11,6 +11,5 @@ export type I18nEntry<LangList extends string> = {
 export type I18nDict<LangList extends string> = Record<string, I18nEntry<LangList>>
 
 export function generateId(str: string): string {
-  console.log(str)
   return md5(str).slice(0, 8)
 }
