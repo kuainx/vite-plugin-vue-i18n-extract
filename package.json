@@ -30,23 +30,23 @@
     "check": "vp check",
     "prepublishOnly": "vp run build"
   },
+  "dependencies": {
+    "js-md5": "^0.8.3"
+  },
   "devDependencies": {
+    "@oxc-project/types": "0.123.0",
     "@standard-config/oxlint": "1.6.2",
     "@types/node": "^25.6.0",
     "@typescript/native-preview": "7.0.0-dev.20260328.1",
     "@vitejs/devtools": "^0.1.13",
+    "@voidzero-dev/vite-plus-core": "0.1.16",
     "bumpp": "^11.0.1",
     "typescript": "^6.0.2",
-    "vite": "catalog:",
     "vite-plugin-inspect": "12.0.0-beta.1",
     "vite-plus": "^0.1.16"
   },
   "packageManager": "pnpm@10.33.0",
-  "inlinedDependencies": {
-    "@oxc-project/types": "0.123.0",
-    "@voidzero-dev/vite-plus-core": "0.1.16"
-  },
-  "dependencies": {
-    "js-md5": "^0.8.3"
+  "peerDependencies": {
+    "vite": "catalog:"
   }
 }

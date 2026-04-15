@@ -1,9 +1,8 @@
-/* eslint-disable unicorn/no-abusive-eslint-disable */
-/* eslint-disable */
 import fs from 'node:fs'
 import path from 'node:path'
-import { generateId, type I18nDict, type I18nEntry } from './shared.js'
+import { generateId } from './shared.js'
 
+import type { I18nDict, I18nEntry } from './shared.js'
 import type { Plugin } from 'vite'
 
 export * from './shared.js'
@@ -36,8 +35,9 @@ export default function vueI18nExtractPlugin(options: I18nExtractOptions = {}): 
     exportPath = path.resolve(root, exportLocation, exportFilename)
     if (fs.existsSync(exportPath)) {
       try {
-        dict = JSON.parse(fs.readFileSync(exportPath, 'utf8'))
+        dict = JSON.parse(fs.readFileSync(exportPath, 'utf8')) as I18nDict
         for (const key in dict) {
+          if (!Object.hasOwn(dict, key)) continue
           dict[key].meta ??= {}
           dict[key].meta.deprecated = true
         }
@@ -68,7 +68,6 @@ export default function vueI18nExtractPlugin(options: I18nExtractOptions = {}): 
 
       const regex = /\$t(?:\.[a-zA-Z0-9_]+)?\s*\(\s*(['"`])((?:(?!\1)[^\\]|\\.)*)\1/g
       let match
-      let changed = false
       while ((match = regex.exec(code)) !== null) {
         // Handle escaped quotes in string
         const sourceStr = match[2].replaceAll(/\\(['"`])/g, '$1')
@@ -87,18 +86,12 @@ export default function vueI18nExtractPlugin(options: I18nExtractOptions = {}): 
           }
           if (exportMeta) {
             entry.meta = {
-              source: path.relative(root, id).replaceAll(/\\/g, '/'),
+              source: path.relative(root, id).replaceAll('\\', '/'),
             }
           }
           dict[entryId] = entry
         }
-        changed = true
       }
-
-      if (changed) {
-        saveDict()
-      }
-
       return null
     },
     buildEnd() {

@@ -29,7 +29,7 @@ export async function defineConfig(cfg: RuntimeConfig): Promise<void> {
     DICT = mod.default as I18nDict
   } catch (error: any) {
     DICT = {}
-    console.warn('vue-i18n-extract-dict module not found', error)
+    console.warn('i18n-dict module not found', error)
   }
 }
 
