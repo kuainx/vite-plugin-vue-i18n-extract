@@ -1,6 +1,9 @@
-import { defineConfig } from "vite-plus";
+import Inspect from 'vite-plugin-inspect'
+import { defineConfig } from 'vite-plus'
 
 export default defineConfig({
+  devtools: true,
+  plugins: [Inspect()],
   pack: {
     dts: {
       tsgo: true,
@@ -27,4 +30,4 @@ export default defineConfig({
     },
     sortTailwindcss: {},
   },
-});
+})
