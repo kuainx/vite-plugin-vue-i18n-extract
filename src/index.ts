@@ -30,10 +30,9 @@ export default function vueI18nExtractPlugin(options: I18nExtractOptions = {}): 
 
   let dict: I18nDict<string> = {}
   let root = process.cwd()
-  let exportPath = ''
+  const exportPath = path.resolve(root, exportLocation, exportFilename)
 
   const loadDict = () => {
-    exportPath = path.resolve(root, exportLocation, exportFilename)
     if (fs.existsSync(exportPath)) {
       try {
         dict = JSON.parse(fs.readFileSync(exportPath, 'utf8')) as I18nDict<string>
@@ -42,7 +41,9 @@ export default function vueI18nExtractPlugin(options: I18nExtractOptions = {}): 
           dict[key].meta ??= {}
           dict[key].meta.deprecated = true
         }
-      } catch {
+        console.log('i18n-dict loaded:', Object.keys(dict).length, 'entries')
+      } catch (error) {
+        console.warn('i18n-dict resolve error', error)
         dict = {}
       }
     } else {
@@ -68,6 +69,18 @@ export default function vueI18nExtractPlugin(options: I18nExtractOptions = {}): 
     configResolved(config) {
       root = config.root
       loadDict()
+    },
+    configureServer(server) {
+      server.watcher.add(exportPath)
+
+      server.watcher.on('change', async (filePath) => {
+        if (filePath === exportPath) {
+          loadDict()
+          const mod = await server.moduleGraph.getModuleByUrl('\0virtual:vue-i18n-extract-dict')
+          if (!mod) return
+          server.moduleGraph.invalidateModule(mod)
+        }
+      })
     },
     transform(code, id) {
       if (id.includes('node_modules') ?? id.startsWith('\0')) return
@@ -113,7 +126,8 @@ export default function vueI18nExtractPlugin(options: I18nExtractOptions = {}): 
     },
     load(id) {
       if (id === '\0virtual:vue-i18n-extract-dict') {
-        return `export default ${JSON.stringify(dict)}`
+        const code = `export default ${JSON.stringify(dict)}`
+        return code
       }
     },
   }

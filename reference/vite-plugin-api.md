@@ -408,7 +408,7 @@ Vite 插件也可以提供钩子来服务于特定的 Vite 目标。这些钩子
 
 - **类型：** `(ctx: HmrContext) => Array<ModuleNode> | void | Promise<Array<ModuleNode> | void>`
 - **种类:** `async`, `sequential`
-- **参见：** [HMR API](./api-hmr)
+- **参见：** [HMR API](./vite-hmr-api)
 
   执行自定义 HMR 更新处理。钩子接收一个带有以下签名的上下文对象：
 
@@ -461,7 +461,7 @@ Vite 插件也可以提供钩子来服务于特定的 Vite 目标。这些钩子
     }
     ```
 
-    客户端代码应该使用 [HMR API](./api-hmr) 注册相应的处理器（这应该被相同插件的 `transform` 钩子注入）：
+    客户端代码应该使用 [HMR API](./vite-hmr-api) 注册相应的处理器（这应该被相同插件的 `transform` 钩子注入）：
 
     ```js
     if (import.meta.hot) {
@@ -743,7 +743,7 @@ declare module 'vite/types/customEvent.d.ts' {
 }
 ```
 
-这个接口扩展被 `InferCustomEventPayload<T>` 所使用，用来推断事件 `T` 的 payload 类型。要了解更多关于这个接口如何被使用的信息，请参考 [HMR API 文档](./api-hmr#hmr-api)。
+这个接口扩展被 `InferCustomEventPayload<T>` 所使用，用来推断事件 `T` 的 payload 类型。要了解更多关于这个接口如何被使用的信息，请参考 [HMR API 文档](./vite-hmr-api#hmr-api)。
 
 ```ts twoslash
 import 'vite/client'
