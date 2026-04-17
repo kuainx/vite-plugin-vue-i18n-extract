@@ -1,3 +1,5 @@
+import virtualDict from 'virtual:vue-i18n-extract-dict'
+
 import { generateId } from './shared.js'
 
 import type { I18nDict, I18nEntry } from './shared.js'
@@ -27,21 +29,14 @@ function defaultRenderFn<LangList extends string>(
 }
 
 export function defineConfig<LangList extends string>() {
-  return async function init<RenderList extends string>(
+  return function init<RenderList extends string>(
     cfg: RuntimeConfig<LangList, RenderList>,
-  ): Promise<TFunction<RenderList>> {
-    let DICT: I18nDict<LangList> = {}
+  ): TFunction<RenderList> {
+    const DICT: I18nDict<LangList> = virtualDict as I18nDict<LangList>
     const { displayLang, render } = cfg
     const runtimeRender: Record<RenderList | 'default', TRenderFn<LangList>> = {
       default: defaultRenderFn<LangList>,
       ...render,
-    }
-    try {
-      const mod = await import('virtual:vue-i18n-extract-dict')
-      DICT = mod.default as I18nDict<LangList>
-    } catch (error: any) {
-      DICT = {}
-      console.warn('[i18n-dict] module not found', error)
     }
 
     function processRender(renderFn: TRenderFn<LangList>, str: string, args: any[]): string {

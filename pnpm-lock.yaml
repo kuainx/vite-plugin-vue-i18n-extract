@@ -4,6 +4,12 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+catalogs:
+  default:
+    vitest:
+      specifier: npm:@voidzero-dev/vite-plus-test@^0.1.18
+      version: 0.1.18
+
 overrides:
   vite: npm:@voidzero-dev/vite-plus-core@^0.1.16
   vitest: npm:@voidzero-dev/vite-plus-test@latest
@@ -49,6 +55,9 @@ importers:
       vite-plus:
         specifier: ^0.1.18
         version: 0.1.18(@types/node@25.6.0)(@vitejs/devtools@0.1.14)(@voidzero-dev/vite-plus-core@0.1.16)(jiti@2.6.1)(publint@0.3.18)(typescript@6.0.3)(yaml@2.8.3)
+      vitest:
+        specifier: 'catalog:'
+        version: '@voidzero-dev/vite-plus-test@0.1.18(@types/node@25.6.0)(@vitejs/devtools@0.1.14)(@voidzero-dev/vite-plus-core@0.1.16)(jiti@2.6.1)(publint@0.3.18)(typescript@6.0.3)(yaml@2.8.3)'
 
 packages:
 
