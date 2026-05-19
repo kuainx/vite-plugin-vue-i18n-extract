@@ -41,8 +41,7 @@ export function defineConfig<LangList extends string>() {
 
     function processRender(renderFn: TRenderFn<LangList>, str: string, args: any[]): string {
       const id = generateId(str)
-      const dat = DICT[id] ?? { id, [displayLang]: str }
-      // 遍历args，全部转换为string
+      const dat = { ...(DICT[id] ?? { id, [displayLang]: str }) }
       const strArgs = convertArgsToStringArraySimple(args)
       for (const key in dat) {
         if (!Object.hasOwn(dat, key)) continue

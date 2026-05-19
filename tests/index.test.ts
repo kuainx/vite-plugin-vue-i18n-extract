@@ -1,8 +1,14 @@
 // oxlint-disable jest/no-conditional-in-test
-import { expect, test } from 'vitest'
+import { expect, test, vi } from 'vitest'
 
 import { generateId } from '../src/index.ts'
 import { defineConfig } from '../src/runtime.ts'
+
+vi.mock('virtual:vue-i18n-extract-dict', () => {
+  return {
+    default: {},
+  }
+})
 
 test('generateId', () => {
   const id1 = generateId('欢迎$0使用本系统, 现在时间是$1')
@@ -22,6 +28,21 @@ test('runtime $t formatting', () => {
   // Mock DICT behavior through fallback dat
   const res = $t('Welcome $1 to $0', 'System', 'Admin')
   expect(res).toBe('Welcome Admin to System')
+})
+
+test('multiple $t formatting', () => {
+  const $t = defineConfig<'en' | 'zh'>()({
+    displayLang: 'en',
+    render: {
+      default: (cfg, dat) => dat[cfg.displayLang] ?? dat.zh,
+    },
+  })
+  function format(num: number) {
+    return $t('test $0', num)
+  }
+  for (let i = 0; i < 10; i++) {
+    expect(format(i)).toBe(`test ${i}`)
+  }
 })
 
 test('runtime $t.l formatting', () => {
